@@ -16,13 +16,17 @@ export default class BinaryTree extends Component {
     this.state = {
       myGraph: {
         nodes: {},
-        edges: [],
       },
     };
   }
 
   componentDidMount = () => {
+    document.addEventListener("keydown", this.keydownHandler, false);
     this.generateDefaultGraph();
+  };
+
+  componentWillUnmount = () => {
+    document.removeEventListener("keydown", this.keydownHandler, false);
   };
 
   deleteSubtreeRecursively = (myGraph, id) => {
@@ -59,7 +63,8 @@ export default class BinaryTree extends Component {
     });
   };
 
-  addVertex = (myGraph, num, id, parentId) => {
+  addVertex = (myGraph, num, parentId) => {
+    const id = uuidv4();
     const label = num + "";
 
     let node = { id, label, num, left: null, right: null };
@@ -94,9 +99,8 @@ export default class BinaryTree extends Component {
   addValue = (num) => {
     this.setState((previousState) => {
       let myGraph = previousState.myGraph;
-      const id = uuidv4();
       if (Object.values(myGraph.nodes).length === 0) {
-        this.addVertex(myGraph, num, id, null);
+        this.addVertex(myGraph, num, null);
         return { myGraph };
       }
 
@@ -106,24 +110,37 @@ export default class BinaryTree extends Component {
         console.log("num: ", num, " parent num: ", parentNode.num);
         if (num <= parentNode.num) {
           if (parentNode.left === null) {
-            this.addVertex(myGraph, num, id, parentId);
-            this.addEdge(myGraph, "edge-" + parentId + "-left", parentId, id, "left");
+            this.addVertex(myGraph, num, parentId);
             break;
           } else {
             parentId = parentNode.left;
           }
         } else {
           if (parentNode.right === null) {
-            this.addVertex(myGraph, num, id, parentId);
-            this.addEdge(myGraph, "edge-" + parentId + "-right", parentId, id, "right");
+            this.addVertex(myGraph, num, parentId);
             break;
           } else {
             parentId = parentNode.right;
           }
         }
       }
+      this.assignCoordinates(myGraph);
       return { myGraph };
     });
+  };
+
+  generateDefaultGraph = () => {
+    this.addValue(4);
+    this.addValue(2);
+    this.addValue(1);
+    this.addValue(3);
+    this.addValue(3);
+    this.addValue(6);
+    this.addValue(5);
+    this.addValue(7);
+    this.addValue(8);
+    this.addValue(9);
+    this.addValue(0);
   };
 
   assignCoordinates = (myGraph) => {
@@ -143,24 +160,32 @@ export default class BinaryTree extends Component {
     }
   };
 
-  generateDefaultGraph = () => {
-    this.addValue(4);
-    this.addValue(2);
-    this.addValue(1);
-    this.addValue(3);
-    this.addValue(6);
-    this.addValue(5);
-    this.addValue(7);
-    this.addValue(8);
-    this.addValue(9);
+  populateEdges = (myGraph) => {
+    myGraph.edges = [];
+    Object.values(myGraph.nodes).forEach((node) => {
+      if (node.left !== null) {
+        this.addEdge(myGraph, "edge-" + node.id + "-" + node.left, node.id, node.left, "left");
+      }
+      if (node.right !== null) {
+        this.addEdge(myGraph, "edge-" + node.id + "-" + node.right, node.id, node.right, "right");
+      }
+    });
+  };
+
+  keydownHandler = (event) => {
+    if (event.code === "Space") {
+      const num = Math.floor(Math.random() * 201) - 100;
+      console.log("generated ", num);
+      this.addValue(num);
+    }
   };
 
   render = () => {
     console.log("this.state: ", this.state);
     let myGraph = {};
     myGraph["nodes"] = Object.values(this.state.myGraph.nodes);
-    myGraph["edges"] = this.state.myGraph.edges;
-    this.assignCoordinates(myGraph);
+    this.populateEdges(myGraph);
+    const drawEdgeLabels = myGraph["nodes"].length < 20;
     console.log("myGraph: ", myGraph);
     return (
       <div style={{ width: "90%", margin: "auto", padding: "20px" }}>
@@ -170,7 +195,7 @@ export default class BinaryTree extends Component {
           settings={{
             drawEdges: true,
             drawLabels: true,
-            drawEdgeLabels: true,
+            drawEdgeLabels,
             clone: false,
             defaultNodeColor: "#FF530D",
             defaultEdgeColor: "#FFB87C",
