@@ -193,6 +193,10 @@ export default class BinaryTree extends Component {
     const drawEdgeLabels = myGraph["nodes"].length < 20;
     return (
       <div style={{ width: "90%", margin: "auto", padding: "20px" }}>
+        <div style={{ textAlign: "center" }}>
+          <h3>Hit spacebar to insert a node into the binary search tree.</h3>
+          <h3>Click on a node to remove it from the binary search tree.</h3>
+        </div>
         <Sigma
           graph={myGraph}
           key={myGraph.nodes.length + "hey"}
