@@ -1,13 +1,5 @@
 import React, { Component } from "react";
-import {
-  onClickNode,
-  onClickEdge,
-  EdgeShapes,
-  NodeShapes,
-  Sigma,
-  RandomizeNodePositions,
-  RelativeSize,
-} from "react-sigma";
+import { Sigma, RelativeSize } from "react-sigma";
 import { v4 as uuidv4 } from "uuid";
 
 export default class BinaryTree extends Component {
@@ -22,13 +14,14 @@ export default class BinaryTree extends Component {
 
   componentDidMount = () => {
     document.addEventListener("keydown", this.keydownHandler, false);
-    this.generateDefaultGraph();
+    this.generateDefaultTree();
   };
 
   componentWillUnmount = () => {
     document.removeEventListener("keydown", this.keydownHandler, false);
   };
 
+  // Deletes given node and its subtree.
   deleteSubtreeRecursively = (myGraph, id) => {
     let node = myGraph.nodes[id];
 
@@ -50,6 +43,7 @@ export default class BinaryTree extends Component {
     delete myGraph.nodes[id];
   };
 
+  // Invokes deletion of clicked node and its subtree.
   onClickNodeFunc = (e) => {
     const id = e.data.node.id;
     console.log("Clicked ", id);
@@ -63,6 +57,8 @@ export default class BinaryTree extends Component {
     });
   };
 
+  // Adds a vertex with given numeric value to the binary
+  // search tree under the given parent node.
   addVertex = (myGraph, num, parentId) => {
     const id = uuidv4();
     const label = num + "";
@@ -92,10 +88,13 @@ export default class BinaryTree extends Component {
     myGraph.nodes[id] = node;
   };
 
+  // Adds an edge between with given source and target nodes.
   addEdge = (myGraph, id, source, target, label) => {
     myGraph.edges.push({ id, source, target, label });
   };
 
+  // Inserts the given numeric values into the binary search
+  // tree in the correct location.
   addValue = (num) => {
     this.setState((previousState) => {
       let myGraph = previousState.myGraph;
@@ -129,7 +128,9 @@ export default class BinaryTree extends Component {
     });
   };
 
-  generateDefaultGraph = () => {
+  // Generates the default binary search tree that is displayed
+  // at the startup.
+  generateDefaultTree = () => {
     this.addValue(4);
     this.addValue(2);
     this.addValue(1);
@@ -143,6 +144,8 @@ export default class BinaryTree extends Component {
     this.addValue(0);
   };
 
+  // Assign coordinates to the nodes in the binary search tree
+  // so that it looks like a tree.
   assignCoordinates = (myGraph) => {
     let nodes = Object.values(myGraph.nodes);
     nodes.sort(function (node1, node2) {
@@ -160,6 +163,7 @@ export default class BinaryTree extends Component {
     }
   };
 
+  // Populates myGraph.edges based on myGraph.nodes.
   populateEdges = (myGraph) => {
     myGraph.edges = [];
     Object.values(myGraph.nodes).forEach((node) => {
@@ -172,6 +176,8 @@ export default class BinaryTree extends Component {
     });
   };
 
+  // Inserts a random number in the range [-100, 100] in the
+  // binary search tree if spacebar is hit.
   keydownHandler = (event) => {
     if (event.code === "Space") {
       const num = Math.floor(Math.random() * 201) - 100;
@@ -181,12 +187,10 @@ export default class BinaryTree extends Component {
   };
 
   render = () => {
-    console.log("this.state: ", this.state);
     let myGraph = {};
     myGraph["nodes"] = Object.values(this.state.myGraph.nodes);
     this.populateEdges(myGraph);
     const drawEdgeLabels = myGraph["nodes"].length < 20;
-    console.log("myGraph: ", myGraph);
     return (
       <div style={{ width: "90%", margin: "auto", padding: "20px" }}>
         <Sigma
