@@ -25,6 +25,40 @@ export default class BinaryTree extends Component {
     this.generateDefaultGraph();
   };
 
+  deleteSubtreeRecursively = (myGraph, id) => {
+    let node = myGraph.nodes[id];
+
+    if (node.left !== null) {
+      this.deleteSubtreeRecursively(myGraph, node.left);
+    }
+    if (node.right !== null) {
+      this.deleteSubtreeRecursively(myGraph, node.right);
+    }
+
+    if (node.parentId !== null) {
+      let parentNode = myGraph.nodes[node.parentId];
+      if (node.num <= parentNode.num) {
+        parentNode.left = null;
+      } else {
+        parentNode.right = null;
+      }
+    }
+    delete myGraph.nodes[id];
+  };
+
+  onClickNodeFunc = (e) => {
+    const id = e.data.node.id;
+    console.log("Clicked ", id);
+    this.setState((previousState) => {
+      let myGraph = previousState.myGraph;
+      this.deleteSubtreeRecursively(myGraph, id);
+      if (Object.values(myGraph.nodes).length === 0) {
+        delete myGraph.rootId;
+      }
+      return { myGraph };
+    });
+  };
+
   addVertex = (myGraph, num, id, parentId) => {
     const label = num + "";
 
