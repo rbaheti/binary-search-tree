@@ -88,9 +88,25 @@ export default class BinaryTree extends Component {
           }
         }
       }
-
       return { myGraph };
     });
+  };
+
+  assignCoordinates = (myGraph) => {
+    let nodes = Object.values(myGraph.nodes);
+    nodes.sort(function (node1, node2) {
+      if (node1.num !== node2.num) {
+        return node1.num - node2.num;
+      }
+      // Because left branch contains <=, and left node should always be on the
+      // left of the root node.
+      return node2.level - node1.level;
+    });
+
+    for (let i = 0; i < nodes.length; ++i) {
+      let node = nodes[i];
+      node.x = i + 1;
+    }
   };
 
   generateDefaultGraph = () => {
@@ -110,6 +126,7 @@ export default class BinaryTree extends Component {
     let myGraph = {};
     myGraph["nodes"] = Object.values(this.state.myGraph.nodes);
     myGraph["edges"] = this.state.myGraph.edges;
+    this.assignCoordinates(myGraph);
     console.log("myGraph: ", myGraph);
     return (
       <div style={{ width: "90%", margin: "auto", padding: "20px" }}>
@@ -132,7 +149,6 @@ export default class BinaryTree extends Component {
           onClickNode={this.onClickNodeFunc}
         >
           <RelativeSize initialSize={15} />
-          <RandomizeNodePositions />
         </Sigma>
       </div>
     );
